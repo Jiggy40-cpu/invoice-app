@@ -1,31 +1,67 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 const DeleteModal = ({ isOpen, onClose, onConfirm, invoiceNumber }) => {
+  const modalRef = useRef(null);
+
   useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const previousFocusedElement = document.activeElement;
+    const focusable = () =>
+      modalRef.current?.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      ) || [];
+
     const handleEscape = (e) => {
       if (e.key === 'Escape') onClose();
+      if (e.key === 'Tab') {
+        const elements = [...focusable()];
+        if (elements.length === 0) return;
+        const first = elements[0];
+        const last = elements[elements.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
 
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
-    }
+    document.addEventListener('keydown', handleEscape);
+    document.body.style.overflow = 'hidden';
+    const [firstElement] = focusable();
+    firstElement?.focus();
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = 'unset';
+      previousFocusedElement?.focus?.();
     };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-900 rounded-lg max-w-sm w-full p-6 shadow-xl">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+      aria-hidden="true"
+    >
+      <div
+        ref={modalRef}
+        className="bg-white dark:bg-gray-900 rounded-lg max-w-sm w-full p-6 shadow-xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-modal-title"
+        aria-describedby="delete-modal-description"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <h2 id="delete-modal-title" className="text-lg font-bold text-gray-900 dark:text-white mb-2">
           Confirm Deletion
         </h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">
+        <p id="delete-modal-description" className="text-gray-600 dark:text-gray-400 mb-6">
           Are you sure you want to delete invoice <strong>#{invoiceNumber}</strong>? This
           action cannot be undone.
         </p>

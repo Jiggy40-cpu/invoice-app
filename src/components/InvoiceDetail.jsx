@@ -33,7 +33,7 @@ function InvoiceDetail() {
   };
 
   const handleMarkPaid = () => {
-    if (invoice.status !== 'paid') {
+    if (invoice.status === 'pending') {
       updateInvoice(id, { status: 'paid' });
     }
   };
@@ -158,7 +158,7 @@ function InvoiceDetail() {
             Edit Invoice
           </button>
         )}
-        {invoice.status !== 'paid' && (
+        {invoice.status === 'pending' && (
           <button
             onClick={handleMarkPaid}
             className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold"
