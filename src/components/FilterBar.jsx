@@ -27,7 +27,8 @@ const FilterBar = () => {
               className="inline-flex items-center gap-2 rounded-md border border-gray-300 dark:border-gray-700 px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition"
             >
               <input
-                type="checkbox"
+                type="radio"
+                name="invoice-status-filter"
                 checked={filter === option.value}
                 onChange={() => setFilter(option.value)}
                 aria-label={`Filter ${option.label}`}
